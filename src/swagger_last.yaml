@@ -1,0 +1,350 @@
+swagger: '2.0'
+info:
+  description: Definition of the SBTech Casino API.
+  version: 0.2.0
+  title: SBTech Casino OpenAPI
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: eram@sbtech.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: casino.sbtech.swagger.io
+basePath: /v2
+tags:
+  - name: CasAPI
+    description: Client API for getting a game-set and launching a game
+schemes:
+  - http
+  - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+
+  /games:
+    get:
+      tags:
+        - CasAPI
+      summary: Get a gameshift game-set
+      operationId: getGames
+      produces:
+        - application/json
+      parameters:
+        - name: lang
+          in: query
+          description: 2 chars language code using ISO 639-1
+          required: false
+          type: string
+          default: en
+        - name: gameshift
+          in: query
+          description: Gameshift name
+          required: true
+          type: string
+      responses:
+        '200':
+          schema:
+            $ref: '#/definitions/GameSet'
+          description: Successful operation
+        '400':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Invalid request data
+        '401':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Invalid token
+        '403':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Operation prohibited
+        '404':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Resource doesn't exist
+        '500':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Server error
+        'default': 
+          schema:
+            $ref: '#/definitions/Error'
+          description: Unexpected error      
+      security:
+        - Bearer: []
+
+  /games/info:
+    get:
+      tags:
+        - CasAPI
+      summary: Receive games' extended information
+      operationId: getGameExt
+      produces:
+        - application/json
+      parameters:
+        - name: lang
+          in: query
+          description: 2 chars language code using ISO 639-1
+          required: false
+          type: string
+          default: en
+        - name: ids
+          in: query
+          description: Array of game ids
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/GameExtra'
+        '400':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Invalid request data
+        '401':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Invalid token
+        '403':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Operation prohibited
+        '404':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Resource doesn't exist
+        '500':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Server error
+        'default': 
+          schema:
+            $ref: '#/definitions/Error'
+          description: Unexpected error      
+      security:
+        - Bearer: []
+
+  /games/launch:
+    get:
+      tags:
+        - CasAPI
+      summary: Get launch-game params
+      operationId: launchGame
+      produces:
+        - application/json
+      parameters:
+        - name: lang
+          in: query
+          description: 2 chars language code using ISO 639-1
+          required: false
+          type: string
+          default: en
+        - name: id
+          in: query
+          description: Id of game
+          required: true
+          type: string
+        - name: gameshift
+          in: query
+          description: Gameshift name
+          required: true
+          type: string
+        - name: demo
+          in: query
+          description: Is demo mode
+          required: false
+          type: boolean
+        - name: channel
+          in: query
+          description: Launch platform- desktop, mobile or mini-game
+          required: true
+          type: string
+          enum:
+          - desktop
+          - mobile
+          - mini
+      responses:
+        '200':
+          schema:
+             $ref: '#/definitions/Launch'
+          description: Successful operation
+        '400':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Invalid request data
+        '401':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Invalid token
+        '403':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Operation prohibited
+        '404':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Resource doesn't exist
+        '500':
+          schema:
+            $ref: '#/definitions/Error'
+          description: Server error
+        'default': 
+          schema:
+            $ref: '#/definitions/Error'
+          description: Unexpected error      
+      security:
+        - Bearer: []
+
+definitions:
+  
+  Media:
+    type: object
+    required:
+      - path
+    properties:
+      path:
+        type: string
+        description: location in CDN
+      width:
+        type: integer
+        format: int32
+        description: width in px
+      height:
+        type: integer
+        format: int32
+        description: height in px
+  
+  GameProps:
+    type: object
+    properties:
+      hasDemo:
+        type: boolean
+      isMini:
+        type: boolean
+      isMobile:
+        type: boolean
+      isDesktop:
+        type: boolean
+  
+  GameExtra:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      description:
+        type: string
+      screenshots:
+        type: array
+        items:
+          $ref: '#/definitions/Media'
+      launchDate:
+        type: string
+        format: date
+        description: ISO standard date- 1985-04-12
+      minBet:
+        type: number
+      maxBet:
+        type: number
+      currency:
+        type: string
+        description: currency display symbol        
+      features:
+        type: object
+  
+  Game:
+    type: object
+    required:
+      - id
+      - name
+      - props
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+        description: display name
+      type:
+        type: string
+        description: game type name
+      tags:
+        type: array
+        items:
+          type: string
+      thumbnails:
+        type: array
+        items:
+          $ref: '#/definitions/Media'
+      background:
+        $ref: '#/definitions/Media'
+      studio:
+        type: string
+        description: game studio name
+      popularity:
+        type: integer
+        format: integer
+      priority:
+        type: integer
+        format: integer
+      gameFlag:
+        type: string
+        enum:
+        - none
+        - new
+        - hot 
+        - promoted
+      jackpotId: 
+        type: string
+      props:
+        $ref: '#/definitions/GameProps'
+
+  GameSet:
+    type: object
+    required:
+      - gameSetId
+    properties:
+      gameSetId:
+        type: string
+        description: Unique ID of the returned game-set 
+      cdn:
+        type: string
+        description: Root path for resources.
+      games:
+        type: array
+        items:
+          $ref: '#/definitions/Game'
+
+  Launch:
+    type: object
+    required:
+      - id
+      - provider
+      - params
+    properties:
+      id:
+        type: string
+      provider:
+        type: string
+      params:
+        type: object
+  
+  Error:
+    type: object
+    required:
+      - code
+    properties:
+      code:
+        type: string
+      message:
+        type: string
