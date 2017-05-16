@@ -1,0 +1,370 @@
+swagger: '2.0'
+info:
+  description: Definition of the SBTech Casino API.
+  version: 0.2.0
+  title: SBTech Casino OpenAPI
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: eram@sbtech.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: casino.sbtech.swagger.io
+basePath: /v2
+tags:
+  - name: CasAPI
+    description: Client API for getting a game-set and launching a game
+schemes:
+  - http
+  - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+
+  /games:
+    get:
+      tags:
+        - CasAPI
+      summary: Get a gameshift game-set
+      operationId: getGames
+      produces:
+        - application/json
+      parameters:
+        - name: lang
+          in: query
+          description: 2 chars language code using ISO 639-1
+          required: false
+          type: string
+          default: en
+        - name: gameshift
+          in: query
+          description: Gameshift name
+          required: true
+          type: string
+      responses:
+        '200':
+          schema:
+            $ref: '#/definitions/IGameSet'
+          description: Successful operation
+        '400':
+          description: Invalid request data
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '403':
+          description: Operation prohibited
+          schema:
+            type: string
+        '404':
+          description: Resource doesn't exist
+          schema:
+            type: string
+        '500':
+          description: Server error
+          schema:
+            type: string
+        'default': 
+          description: Unexpected error      
+          schema:
+            type: string
+      security:
+        - Bearer: []
+
+  /games/info:
+    get:
+      tags:
+        - CasAPI
+      summary: Receive games' extended information
+      operationId: getGameExt
+      produces:
+        - application/json
+      parameters:
+        - name: lang
+          in: query
+          description: 2 chars language code using ISO 639-1
+          required: false
+          type: string
+          default: en
+        - name: ids
+          in: query
+          description: Array of game ids
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IGameExtra'
+        '400':
+          description: Invalid request data
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '403':
+          description: Operation prohibited
+          schema:
+            type: string
+        '404':
+          description: Resource doesn't exist
+          schema:
+            type: string
+        '500':
+          description: Server error
+          schema:
+            type: string
+        'default': 
+          description: Unexpected error      
+          schema:
+            type: string
+      security:
+        - Bearer: []
+
+  /games/launch:
+    get:
+      tags:
+        - CasAPI
+      summary: Get launch-game params
+      operationId: launchGameParams
+      produces:
+        - application/json
+      parameters:
+        - name: lang
+          in: query
+          description: 2 chars language code using ISO 639-1
+          required: false
+          type: string
+          default: en
+        - name: id
+          in: query
+          description: Id of game
+          required: true
+          type: string
+        - name: gameshift
+          in: query
+          description: Gameshift name
+          required: true
+          type: string
+        - name: demo
+          in: query
+          description: Is demo mode
+          required: false
+          type: boolean
+        - name: channel
+          in: query
+          description: Launch platform- desktop, mobile or mini-game
+          required: true
+          type: string
+          enum:
+          - desktop
+          - mobile
+          - mini
+      responses:
+        '200':
+          schema:
+             $ref: '#/definitions/ILaunchParams'
+          description: Successful operation
+        '400':
+          description: Invalid request data
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '403':
+          description: Operation prohibited
+          schema:
+            type: string
+        '404':
+          description: Resource doesn't exist
+          schema:
+            type: string
+        '500':
+          description: Server error
+          schema:
+            type: string
+        'default': 
+          description: Unexpected error      
+          schema:
+            type: string
+      security:
+        - Bearer: []
+
+
+  /ping:
+    get:
+      tags:
+        - CasAPI
+      summary: Server heartbeat operation
+      operationId: ping
+      # description: This operation shows how to override the global security defined above, as we want to open it up for all users.
+      # We want to require no security schemes and override the globally define security scheme.
+      # To do that, we simply provide an empty array to the 'security' property.
+      security: [ ]
+      responses:
+        '200':
+          description: OK
+        'default': 
+          description: Unexpected error      
+          schema:
+            type: string
+
+definitions:
+
+  ITag:
+    type: object
+    required:
+      - code
+    properties:
+      code:
+        type: string
+
+  IMedia:
+    type: object
+    required:
+      - path
+    properties:
+      path:
+        type: string
+        description: location in CDN
+      width:
+        type: integer
+        description: width in px
+      height:
+        type: integer
+        description: height in px
+  
+  IGameProps:
+    type: object
+    properties:
+      hasDemo:
+        type: boolean
+      isMini:
+        type: boolean
+      isMobile:
+        type: boolean
+      isDesktop:
+        type: boolean
+  
+  IGameExtra:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      description:
+        type: string
+      screenshots:
+        type: array
+        items:
+          $ref: '#/definitions/IMedia'
+      launchDate:
+        type: string
+        format: date
+        description: ISO standard date- 1985-04-12
+      minBet:
+        type: number
+      maxBet:
+        type: number
+      currency:
+        type: string
+        description: currency display symbol        
+      features:
+        type: object
+  
+  IGame:
+    type: object
+    required:
+      - id
+      - name
+      - props
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+        description: display name
+      type:
+        type: string
+        description: game type name
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/ITag'
+      thumbnails:
+        type: array
+        items:
+          $ref: '#/definitions/IMedia'
+      background:
+        $ref: '#/definitions/IMedia'
+      studio:
+        type: string
+        description: game studio name
+      popularity:
+        type: integer
+        format: integer
+      priority:
+        type: integer
+        format: integer
+      gameFlag:
+        description: game icon promotional overlay.
+        type: string
+        enum:
+          - new
+          - hot
+          - promoted
+      jackpotId: 
+        type: string
+      props:
+        $ref: '#/definitions/IGameProps'
+
+  IGameSet:
+    type: object
+    required:
+      - gameSetId
+      - gameShiftId
+      - games
+    properties:
+      gameSetId:
+        type: string
+        description: Unique ID of the returned game-set 
+      gameShiftId:
+        type: string
+        description: Unique ID of the returned game-shift 
+      cdn:
+        type: string
+        description: Root path for resources.
+      games:
+        type: array
+        items:
+          $ref: '#/definitions/IGame'
+
+  ILaunchParams:
+    type: object
+    required:
+      - gameId
+      - provider
+      - params
+    properties:
+      gameId:
+        type: string
+      provider:
+        type: string
+      params:
+        type: object
