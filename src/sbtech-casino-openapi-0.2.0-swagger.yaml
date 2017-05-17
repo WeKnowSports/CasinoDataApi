@@ -138,7 +138,7 @@ paths:
     get:
       tags:
         - CasAPI
-      summary: Get launch-game params
+      summary: Get launch-game params. This function should be called right after the player has requested to run a game. The resturned parameters include the url of the game, with all the parameters required to launch it. 
       operationId: launchGameParams
       produces:
         - application/json
@@ -249,18 +249,6 @@ definitions:
         type: integer
         description: height in px
   
-  IGameProps:
-    type: object
-    properties:
-      hasDemo:
-        type: boolean
-      isMini:
-        type: boolean
-      isMobile:
-        type: boolean
-      isDesktop:
-        type: boolean
-  
   IGameExtra:
     type: object
     required:
@@ -287,7 +275,16 @@ definitions:
         description: currency display symbol        
       features:
         type: object
-  
+        description: a key-value map
+        required:
+          - default
+        properties:
+          default:
+            type: string
+        additionalProperties:
+          type: string
+
+ 
   IGame:
     type: object
     required:
@@ -329,10 +326,19 @@ definitions:
           - new
           - hot
           - promoted
+      props:
+        type: object
+        properties:
+          hasDemo:
+            type: boolean
+          isMini:
+            type: boolean
+          isMobile:
+            type: boolean
+          isDesktop:
+            type: boolean
       jackpotId: 
         type: string
-      props:
-        $ref: '#/definitions/IGameProps'
 
   IGameSet:
     type: object
