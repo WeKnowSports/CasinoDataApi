@@ -47,9 +47,9 @@ paths:
           type: string
       responses:
         '200':
+          description: Successful operation
           schema:
             $ref: '#/definitions/IGameSet'
-          description: Successful operation
         '400':
           description: Invalid request data
           schema:
@@ -226,14 +226,6 @@ paths:
 
 definitions:
 
-  ITag:
-    type: object
-    required:
-      - code
-    properties:
-      code:
-        type: string
-
   IMedia:
     type: object
     required:
@@ -303,7 +295,8 @@ definitions:
       tags:
         type: array
         items:
-          $ref: '#/definitions/ITag'
+          type: string
+          description: tag-code | category-id
       thumbnails:
         type: array
         items:
