@@ -312,6 +312,10 @@ definitions:
       priority:
         type: integer
         format: integer
+      lastPlayed:
+        type: string
+        format: dateTime
+        description: last played date-time - RFC3339
       gameFlag:
         description: game icon promotional overlay.
         type: string
