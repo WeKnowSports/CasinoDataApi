@@ -254,10 +254,6 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/IMedia'
-      launchDate:
-        type: string
-        format: date
-        description: ISO standard date- 1985-04-12
       minBet:
         type: number
       maxBet:
@@ -312,6 +308,10 @@ definitions:
       priority:
         type: integer
         format: integer
+      launchDate:
+        type: string
+        format: date
+        description: ISO standard date- 1985-04-12
       lastPlayed:
         type: string
         format: dateTime
