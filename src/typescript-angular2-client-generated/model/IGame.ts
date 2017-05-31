@@ -53,6 +53,11 @@ export interface IGame {
     priority?: number;
 
     /**
+     * ISO standard date- 1985-04-12
+     */
+    launchDate?: Date;
+
+    /**
      * last played date-time - RFC3339
      */
     lastPlayed?: string;

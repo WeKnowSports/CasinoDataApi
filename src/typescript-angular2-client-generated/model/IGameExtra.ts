@@ -31,11 +31,6 @@ export interface IGameExtra {
 
     screenshots?: Array<models.IMedia>;
 
-    /**
-     * ISO standard date- 1985-04-12
-     */
-    launchDate?: Date;
-
     minBet?: number;
 
     maxBet?: number;
