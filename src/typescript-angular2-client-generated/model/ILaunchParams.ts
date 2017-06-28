@@ -29,6 +29,8 @@ export interface ILaunchParams {
 
     provider: string;
 
+    regulationPopup?: boolean;
+
     params: any;
 
 }
