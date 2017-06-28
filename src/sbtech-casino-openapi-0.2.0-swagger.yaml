@@ -369,7 +369,7 @@ definitions:
         type: string
       provider:
         type: string
-      reguationPopup:
+      regulationPopup:
         type: boolean
       params:
         type: object
