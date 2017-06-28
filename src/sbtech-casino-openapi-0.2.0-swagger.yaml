@@ -369,5 +369,7 @@ definitions:
         type: string
       provider:
         type: string
+      reguationPopup:
+        type: boolean
       params:
         type: object
