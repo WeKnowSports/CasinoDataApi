@@ -22,6 +22,7 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
+    description: JWT( UserId, SiteId, brandName, langugae?, currency? )
 
 paths:
 
@@ -34,12 +35,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: lang
-          in: query
-          description: 2 chars language code using ISO 639-1
-          required: false
-          type: string
-          default: en
         - name: gameshift
           in: query
           description: Gameshift name
@@ -86,12 +81,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: lang
-          in: query
-          description: 2 chars language code using ISO 639-1
-          required: false
-          type: string
-          default: en
         - name: ids
           in: query
           description: Array of game ids
@@ -128,7 +117,7 @@ paths:
           schema:
             type: string
         'default': 
-          description: Unexpected error      
+          description: Unexpected error
           schema:
             type: string
       security:
@@ -143,12 +132,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: lang
-          in: query
-          description: 2 chars language code using ISO 639-1
-          required: false
-          type: string
-          default: en
         - name: id
           in: query
           description: Id of game
@@ -369,7 +352,5 @@ definitions:
         type: string
       provider:
         type: string
-      regulationPopup:
-        type: boolean
       params:
         type: object
