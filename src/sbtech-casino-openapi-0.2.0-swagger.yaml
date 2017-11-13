@@ -40,6 +40,20 @@ paths:
           description: Gameshift name
           required: true
           type: string
+        - name: channel
+          in: query
+          description: Channel type for which games should be returned
+          required: true
+          type: string
+          enum:
+          - desktop
+          - mobile
+          - mini
+        - name: demo
+          in: query
+          description: Demo mode used into the game
+          required: true
+          type: boolean
       responses:
         '200':
           description: Successful operation
