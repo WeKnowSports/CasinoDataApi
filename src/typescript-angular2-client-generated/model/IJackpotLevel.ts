@@ -25,20 +25,20 @@
 import * as models from './models';
 
 /**
- * image, screenshot, video etc.
+ * a level of a jackpot network.
  */
-export interface IMedia {
+export interface IJackpotLevel {
     /**
-     * location in CDN. If a CDN is not given in the game-set (see below) then the path is relative to the website root.
+     * current amount in jackpot-level.
      */
-    "path": string;
+    "value": number;
     /**
-     * width in px.
+     * the amount the jackpot-level is *predicted* to increse in the next minute. This is used to display a running counter/ticker. nowValue = value + (now-timestamp) * upMinute / 60000.
      */
-    "width"?: number;
+    "upMinute"?: number;
     /**
-     * height in px.
+     * name can be translated using SDK dictionary.
      */
-    "height"?: number;
+    "name": string;
 }
 

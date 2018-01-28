@@ -22,341 +22,237 @@
  * limitations under the License.
  */
 
-import { Inject, Injectable, Optional }                      from '@angular/core';
-import { Http, Headers, URLSearchParams }                    from '@angular/http';
-import { RequestMethod, RequestOptions, RequestOptionsArgs } from '@angular/http';
-import { Response, ResponseContentType }                     from '@angular/http';
-
-import { Observable }                                        from 'rxjs/Observable';
-import 'rxjs/add/operator/map';
-
-import * as models                                           from '../model/models';
-import { BASE_PATH }                                         from '../variables';
-import { Configuration }                                     from '../configuration';
+import * as models from '../model/models';
 
 /* tslint:disable:no-unused-variable member-ordering */
 
-
-@Injectable()
 export class CasAPIApi {
-    protected basePath = 'http://casino.sbtech.swagger.io/v2';
-    public defaultHeaders: Headers = new Headers();
-    public configuration: Configuration = new Configuration();
+    protected basePath = 'http://casino.sbtech.swagger.io/casinoapi/v1/';
+    public defaultHeaders : any = {};
 
-    constructor(protected http: Http, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
-        if (basePath) {
+    static $inject: string[] = ['$http', '$httpParamSerializer', 'basePath'];
+
+    constructor(protected $http: ng.IHttpService, protected $httpParamSerializer?: (d: any) => any, basePath?: string) {
+        if (basePath !== undefined) {
             this.basePath = basePath;
         }
-        if (configuration) {
-            this.configuration = configuration;
-        }
-    }
-	
-	/**
-     * 
-     * Extends object by coping non-existing properties.
-     * @param objA object to be extended
-     * @param objB source object
-     */
-    private extendObj<T1,T2>(objA: T1, objB: T2) {
-        for(let key in objB){
-            if(objB.hasOwnProperty(key)){
-                objA[key] = objB[key];
-            }
-        }
-        return <T1&T2>objA;
     }
 
     /**
-     * Receive games&#39; extended information
      * 
-     * @param ids Array of game ids
-     * @param lang 2 chars language code using ISO 639-1
-     */
-    public getGameExt(ids: Array<string>, lang?: string, extraHttpRequestParams?: any): Observable<Array<models.IGameExtra>> {
-        return this.getGameExtWithHttpInfo(ids, lang, extraHttpRequestParams)
-            .map((response: Response) => {
-                if (response.status === 204) {
-                    return undefined;
-                } else {
-                    return response.json();
-                }
-            });
-    }
-
-    /**
-     * Get a gameshift game-set
-     * 
-     * @param gameshift Gameshift name
-     * @param lang 2 chars language code using ISO 639-1
-     */
-    public getGames(gameshift: string, lang?: string, extraHttpRequestParams?: any): Observable<models.IGameSet> {
-        return this.getGamesWithHttpInfo(gameshift, lang, extraHttpRequestParams)
-            .map((response: Response) => {
-                if (response.status === 204) {
-                    return undefined;
-                } else {
-                    return response.json();
-                }
-            });
-    }
-
-    /**
-     * Get launch-game params. This function should be called right after the player has requested to run a game. The resturned parameters include the url of the game, with all the parameters required to launch it.
-     * 
+     * @summary Update that a game window is now closed. If 2 game keepalives where missed the platform automatically assumes the game is already closed.
      * @param id Id of game
-     * @param gameshift Gameshift name
-     * @param channel Launch platform- desktop, mobile or mini-game
-     * @param lang 2 chars language code using ISO 639-1
-     * @param demo Is demo mode
      */
-    public launchGameParams(id: string, gameshift: string, channel: string, lang?: string, demo?: boolean, extraHttpRequestParams?: any): Observable<models.ILaunchParams> {
-        return this.launchGameParamsWithHttpInfo(id, gameshift, channel, lang, demo, extraHttpRequestParams)
-            .map((response: Response) => {
-                if (response.status === 204) {
-                    return undefined;
-                } else {
-                    return response.json();
-                }
-            });
+    public closed (id?: string, extraHttpRequestParams?: any ) : ng.IHttpPromise<string> {
+        const localVarPath = this.basePath + '/games/closed';
+
+        let queryParameters: any = {};
+        let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
+        if (id !== undefined) {
+            queryParameters['id'] = id;
+        }
+
+        let httpRequestParams: ng.IRequestConfig = {
+            method: 'GET',
+            url: localVarPath,
+                                    params: queryParameters,
+            headers: headerParams
+        };
+
+        if (extraHttpRequestParams) {
+            httpRequestParams = (<any>Object).assign(httpRequestParams, extraHttpRequestParams);
+        }
+
+        return this.$http(httpRequestParams);
     }
-
     /**
-     * Server heartbeat operation
      * 
-     */
-    public ping(extraHttpRequestParams?: any): Observable<{}> {
-        return this.pingWithHttpInfo(extraHttpRequestParams)
-            .map((response: Response) => {
-                if (response.status === 204) {
-                    return undefined;
-                } else {
-                    return response.json();
-                }
-            });
-    }
-
-
-    /**
-     * Receive games&#39; extended information
-     * 
+     * @summary Get a games' extended information
      * @param ids Array of game ids
-     * @param lang 2 chars language code using ISO 639-1
      */
-    public getGameExtWithHttpInfo(ids: Array<string>, lang?: string, extraHttpRequestParams?: any): Observable<Response> {
-        const path = this.basePath + `/games/info`;
+    public getGameExt (ids: Array<string>, extraHttpRequestParams?: any ) : ng.IHttpPromise<Array<models.IGameExtra>> {
+        const localVarPath = this.basePath + '/games/info';
 
-        let queryParameters = new URLSearchParams();
-        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        let queryParameters: any = {};
+        let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
         // verify required parameter 'ids' is not null or undefined
         if (ids === null || ids === undefined) {
             throw new Error('Required parameter ids was null or undefined when calling getGameExt.');
         }
-        if (lang !== undefined) {
-            queryParameters.set('lang', <any>lang);
-        }
+
         if (ids !== undefined) {
-            queryParameters.set('ids', <any>ids);
+            queryParameters['ids'] = ids;
         }
 
+        let httpRequestParams: ng.IRequestConfig = {
+            method: 'GET',
+            url: localVarPath,
+                                    params: queryParameters,
+            headers: headerParams
+        };
 
-        // to determine the Content-Type header
-        let consumes: string[] = [
-        ];
-
-        // to determine the Accept header
-        let produces: string[] = [
-            'application/json'
-        ];
-        
-        // authentication (Bearer) required
-        if (this.configuration.apiKey)
-        {
-            headers.set('Authorization', this.configuration.apiKey);
-        }
-            
-
-
-
-        let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: RequestMethod.Get,
-            headers: headers,
-            search: queryParameters
-        });
-        
-        // https://github.com/swagger-api/swagger-codegen/issues/4037
         if (extraHttpRequestParams) {
-            requestOptions = this.extendObj(requestOptions, extraHttpRequestParams);
+            httpRequestParams = (<any>Object).assign(httpRequestParams, extraHttpRequestParams);
         }
 
-        return this.http.request(path, requestOptions);
+        return this.$http(httpRequestParams);
     }
-
     /**
-     * Get a gameshift game-set
      * 
+     * @summary Get a game-set for the requested game-shift
      * @param gameshift Gameshift name
-     * @param lang 2 chars language code using ISO 639-1
+     * @param channel Channel type for which games should be returned
+     * @param demo Demo mode used into the game
      */
-    public getGamesWithHttpInfo(gameshift: string, lang?: string, extraHttpRequestParams?: any): Observable<Response> {
-        const path = this.basePath + `/games`;
+    public getGames (gameshift: string, channel: string, demo: boolean, extraHttpRequestParams?: any ) : ng.IHttpPromise<models.IGameSet> {
+        const localVarPath = this.basePath + '/games';
 
-        let queryParameters = new URLSearchParams();
-        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        let queryParameters: any = {};
+        let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
         // verify required parameter 'gameshift' is not null or undefined
         if (gameshift === null || gameshift === undefined) {
             throw new Error('Required parameter gameshift was null or undefined when calling getGames.');
         }
-        if (lang !== undefined) {
-            queryParameters.set('lang', <any>lang);
+
+        // verify required parameter 'channel' is not null or undefined
+        if (channel === null || channel === undefined) {
+            throw new Error('Required parameter channel was null or undefined when calling getGames.');
         }
+
+        // verify required parameter 'demo' is not null or undefined
+        if (demo === null || demo === undefined) {
+            throw new Error('Required parameter demo was null or undefined when calling getGames.');
+        }
+
         if (gameshift !== undefined) {
-            queryParameters.set('gameshift', <any>gameshift);
+            queryParameters['gameshift'] = gameshift;
         }
 
-
-        // to determine the Content-Type header
-        let consumes: string[] = [
-        ];
-
-        // to determine the Accept header
-        let produces: string[] = [
-            'application/json'
-        ];
-        
-        // authentication (Bearer) required
-        if (this.configuration.apiKey)
-        {
-            headers.set('Authorization', this.configuration.apiKey);
+        if (channel !== undefined) {
+            queryParameters['channel'] = channel;
         }
-            
 
+        if (demo !== undefined) {
+            queryParameters['demo'] = demo;
+        }
 
+        let httpRequestParams: ng.IRequestConfig = {
+            method: 'GET',
+            url: localVarPath,
+                                    params: queryParameters,
+            headers: headerParams
+        };
 
-        let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: RequestMethod.Get,
-            headers: headers,
-            search: queryParameters
-        });
-        
-        // https://github.com/swagger-api/swagger-codegen/issues/4037
         if (extraHttpRequestParams) {
-            requestOptions = this.extendObj(requestOptions, extraHttpRequestParams);
+            httpRequestParams = (<any>Object).assign(httpRequestParams, extraHttpRequestParams);
         }
 
-        return this.http.request(path, requestOptions);
+        return this.$http(httpRequestParams);
     }
-
     /**
-     * Get launch-game params. This function should be called right after the player has requested to run a game. The resturned parameters include the url of the game, with all the parameters required to launch it.
      * 
-     * @param id Id of game
-     * @param gameshift Gameshift name
-     * @param channel Launch platform- desktop, mobile or mini-game
-     * @param lang 2 chars language code using ISO 639-1
-     * @param demo Is demo mode
+     * @summary Server heartbeat operation
      */
-    public launchGameParamsWithHttpInfo(id: string, gameshift: string, channel: string, lang?: string, demo?: boolean, extraHttpRequestParams?: any): Observable<Response> {
-        const path = this.basePath + `/games/launch`;
+    public healthcheck (extraHttpRequestParams?: any ) : ng.IHttpPromise<{}> {
+        const localVarPath = this.basePath + '/_healthcheck';
 
-        let queryParameters = new URLSearchParams();
-        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        let queryParameters: any = {};
+        let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
+        let httpRequestParams: ng.IRequestConfig = {
+            method: 'GET',
+            url: localVarPath,
+                                    params: queryParameters,
+            headers: headerParams
+        };
+
+        if (extraHttpRequestParams) {
+            httpRequestParams = (<any>Object).assign(httpRequestParams, extraHttpRequestParams);
+        }
+
+        return this.$http(httpRequestParams);
+    }
+    /**
+     * 
+     * @summary Update that a game window is alive. This API should be called periodically (default = 10sec) to update backend that the game is open and *available* for user interaction.
+     * @param id Id of game
+     */
+    public keepalive (id?: string, extraHttpRequestParams?: any ) : ng.IHttpPromise<string> {
+        const localVarPath = this.basePath + '/games/keepalive';
+
+        let queryParameters: any = {};
+        let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
+        if (id !== undefined) {
+            queryParameters['id'] = id;
+        }
+
+        let httpRequestParams: ng.IRequestConfig = {
+            method: 'GET',
+            url: localVarPath,
+                                    params: queryParameters,
+            headers: headerParams
+        };
+
+        if (extraHttpRequestParams) {
+            httpRequestParams = (<any>Object).assign(httpRequestParams, extraHttpRequestParams);
+        }
+
+        return this.$http(httpRequestParams);
+    }
+    /**
+     * 
+     * @summary Get launch-game params. This API should be called data required to run a game. The returned object includes the url of the game, with all the parameters required to launch it.
+     * @param id platform internal game-id as returned in a game-set.
+     * @param gameshift game-shift name
+     * @param channel gaming platform- desktop, mobile/tablet or mini-game
+     * @param demo request to play for-fun.
+     */
+    public launchGameParams (id: string, gameshift: string, channel: string, demo?: boolean, extraHttpRequestParams?: any ) : ng.IHttpPromise<models.ILaunchParams> {
+        const localVarPath = this.basePath + '/games/launch';
+
+        let queryParameters: any = {};
+        let headerParams: any = (<any>Object).assign({}, this.defaultHeaders);
         // verify required parameter 'id' is not null or undefined
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling launchGameParams.');
         }
+
         // verify required parameter 'gameshift' is not null or undefined
         if (gameshift === null || gameshift === undefined) {
             throw new Error('Required parameter gameshift was null or undefined when calling launchGameParams.');
         }
+
         // verify required parameter 'channel' is not null or undefined
         if (channel === null || channel === undefined) {
             throw new Error('Required parameter channel was null or undefined when calling launchGameParams.');
         }
-        if (lang !== undefined) {
-            queryParameters.set('lang', <any>lang);
-        }
+
         if (id !== undefined) {
-            queryParameters.set('id', <any>id);
+            queryParameters['id'] = id;
         }
+
         if (gameshift !== undefined) {
-            queryParameters.set('gameshift', <any>gameshift);
+            queryParameters['gameshift'] = gameshift;
         }
+
         if (demo !== undefined) {
-            queryParameters.set('demo', <any>demo);
+            queryParameters['demo'] = demo;
         }
+
         if (channel !== undefined) {
-            queryParameters.set('channel', <any>channel);
+            queryParameters['channel'] = channel;
         }
 
+        let httpRequestParams: ng.IRequestConfig = {
+            method: 'GET',
+            url: localVarPath,
+                                    params: queryParameters,
+            headers: headerParams
+        };
 
-        // to determine the Content-Type header
-        let consumes: string[] = [
-        ];
-
-        // to determine the Accept header
-        let produces: string[] = [
-            'application/json'
-        ];
-        
-        // authentication (Bearer) required
-        if (this.configuration.apiKey)
-        {
-            headers.set('Authorization', this.configuration.apiKey);
-        }
-            
-
-
-
-        let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: RequestMethod.Get,
-            headers: headers,
-            search: queryParameters
-        });
-        
-        // https://github.com/swagger-api/swagger-codegen/issues/4037
         if (extraHttpRequestParams) {
-            requestOptions = this.extendObj(requestOptions, extraHttpRequestParams);
+            httpRequestParams = (<any>Object).assign(httpRequestParams, extraHttpRequestParams);
         }
 
-        return this.http.request(path, requestOptions);
+        return this.$http(httpRequestParams);
     }
-
-    /**
-     * Server heartbeat operation
-     * 
-     */
-    public pingWithHttpInfo(extraHttpRequestParams?: any): Observable<Response> {
-        const path = this.basePath + `/ping`;
-
-        let queryParameters = new URLSearchParams();
-        let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
-
-
-        // to determine the Content-Type header
-        let consumes: string[] = [
-        ];
-
-        // to determine the Accept header
-        let produces: string[] = [
-        ];
-        
-            
-
-
-
-        let requestOptions: RequestOptionsArgs = new RequestOptions({
-            method: RequestMethod.Get,
-            headers: headers,
-            search: queryParameters
-        });
-        
-        // https://github.com/swagger-api/swagger-codegen/issues/4037
-        if (extraHttpRequestParams) {
-            requestOptions = this.extendObj(requestOptions, extraHttpRequestParams);
-        }
-
-        return this.http.request(path, requestOptions);
-    }
-
 }

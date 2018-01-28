@@ -24,54 +24,62 @@
 
 import * as models from './models';
 
+/**
+ * a game avilable for the player
+ */
 export interface IGame {
-    id: string;
-
+    /**
+     * platfrom intenal game-id
+     */
+    "id": string;
     /**
      * display name
      */
-    name: string;
-
+    "name": string;
     /**
      * game type name
      */
-    type?: string;
-
-    tags?: Array<string>;
-
-    thumbnails?: Array<models.IMedia>;
-
-    background?: models.IMedia;
-
+    "type"?: string;
+    "tags"?: Array<string>;
     /**
-     * game studio name
+     * images to be displayed in a game-grid widget. The caller can decide which of the thms to use based on their size.
      */
-    studio?: string;
-
-    popularity?: number;
-
-    priority?: number;
-
+    "thumbnails"?: Array<models.IMedia>;
     /**
-     * ISO standard date- 1985-04-12
+     * background image to be used in game-page/game-frame.
      */
-    launchDate?: Date;
-
+    "background"?: models.IMedia;
     /**
-     * last played date-time - RFC3339
+     * game studio/sub-provider name
      */
-    lastPlayed?: string;
-
+    "studio"?: string;
     /**
-     * game icon promotional overlay.
+     * measure of game popularity in the website. A higher number is more popular.
      */
-    gameFlag?: IGame.GameFlagEnum;
-
-    props?: models.IGameProps;
-
-    jackpotId?: string;
-
+    "popularity"?: number;
+    /**
+     * display order in the returned game-set.
+     */
+    "priority"?: number;
+    /**
+     * date of game launch. ISO standard date- 1985-04-12.
+     */
+    "launchDate"?: string;
+    /**
+     * time the player has last played the game - RFC3339.
+     */
+    "lastPlayed"?: string;
+    /**
+     * game promotional flagging. used to display an overlay on the game thumb.
+     */
+    "gameFlag"?: IGame.GameFlagEnum;
+    "props": models.IGameProps;
+    /**
+     * game is contributing to a jackpot next work. The data about the jackpot *may* be available in the jackpot array in the game-set (see below).
+     */
+    "jackpotId"?: string;
 }
+
 export namespace IGame {
     export enum GameFlagEnum {
         New = <any> 'new',

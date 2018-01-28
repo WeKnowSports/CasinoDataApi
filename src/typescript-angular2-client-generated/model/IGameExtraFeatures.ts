@@ -25,20 +25,9 @@
 import * as models from './models';
 
 /**
- * image, screenshot, video etc.
+ * a key-value map of features of the game and the feature's value. For example= \"Volatility=4\"
  */
-export interface IMedia {
-    /**
-     * location in CDN. If a CDN is not given in the game-set (see below) then the path is relative to the website root.
-     */
-    "path": string;
-    /**
-     * width in px.
-     */
-    "width"?: number;
-    /**
-     * height in px.
-     */
-    "height"?: number;
+export interface IGameExtraFeatures {
+    "default": string;
 }
 

@@ -24,25 +24,31 @@
 
 import * as models from './models';
 
+/**
+ * additional information available for display about the game to produce  detailed game widget.
+ */
 export interface IGameExtra {
-    id: string;
-
-    description?: string;
-
-    screenshots?: Array<models.IMedia>;
-
-    minBet?: number;
-
-    maxBet?: number;
-
+    "id": string;
+    /**
+     * text about the game theme and main features.
+     */
+    "description"?: string;
+    /**
+     * game screen-shots
+     */
+    "screenshots"?: Array<models.IMedia>;
+    /**
+     * minimal bet
+     */
+    "minBet"?: number;
+    /**
+     * maximal bet
+     */
+    "maxBet"?: number;
     /**
      * currency display symbol
      */
-    currency?: string;
-
-    /**
-     * a key-value map
-     */
-    features?: { [key: string]: string; };
-
+    "currency"?: string;
+    "features"?: models.IGameExtraFeatures;
 }
+

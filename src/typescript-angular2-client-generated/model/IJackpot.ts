@@ -25,20 +25,24 @@
 import * as models from './models';
 
 /**
- * image, screenshot, video etc.
+ * a jackpot network.
  */
-export interface IMedia {
+export interface IJackpot {
     /**
-     * location in CDN. If a CDN is not given in the game-set (see below) then the path is relative to the website root.
+     * name of jackpot. Corrsponds to the game.JackpotId.
      */
-    "path": string;
+    "id": string;
     /**
-     * width in px.
+     * currency 3-letter ISO code. default=EUR
      */
-    "width"?: number;
+    "currency": string;
     /**
-     * height in px.
+     * the time this jackpot was last updated from source. In milisec since epoch.
      */
-    "height"?: number;
+    "timestamp": number;
+    /**
+     * one or more jackpot-levels
+     */
+    "levels": Array<models.IJackpotLevel>;
 }
 

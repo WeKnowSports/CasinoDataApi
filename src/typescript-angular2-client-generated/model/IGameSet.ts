@@ -24,22 +24,29 @@
 
 import * as models from './models';
 
+/**
+ * a game-set object is returned in response to a /games query. It holds a list of games and a list of jackpots.
+ */
 export interface IGameSet {
     /**
-     * Unique ID of the returned game-set
+     * unique ID of the returned game-set.
      */
-    gameSetId: string;
-
+    "gameSetId": string;
     /**
-     * Unique ID of the returned game-shift
+     * unique ID of the game-shift containing this game-set.
      */
-    gameShiftId: string;
-
+    "gameShiftId": string;
     /**
-     * Root path for resources.
+     * root path for resources. the scheme may need to be adjusted to match the page scheme.
      */
-    cdn?: string;
-
-    games: Array<models.IGame>;
-
+    "cdn"?: string;
+    /**
+     * a list of games.
+     */
+    "games": Array<models.IGame>;
+    /**
+     * a list of jackpots. only jackpots references by a game are returned.
+     */
+    "jackpots"?: Array<models.IJackpot>;
 }
+

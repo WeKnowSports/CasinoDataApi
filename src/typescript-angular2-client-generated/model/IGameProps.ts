@@ -24,13 +24,25 @@
 
 import * as models from './models';
 
+/**
+ * game availablity.
+ */
 export interface IGameProps {
-    hasDemo?: boolean;
-
-    isMini?: boolean;
-
-    isMobile?: boolean;
-
-    isDesktop?: boolean;
-
+    /**
+     * game can be played for-fun.
+     */
+    "hasDemo"?: boolean;
+    /**
+     * game can be played embedded in a small frame in a page.
+     */
+    "isMini"?: boolean;
+    /**
+     * game can be played on mobile/tablet.
+     */
+    "isMobile"?: boolean;
+    /**
+     * game can be played on a desktop browser.
+     */
+    "isDesktop"?: boolean;
 }
+

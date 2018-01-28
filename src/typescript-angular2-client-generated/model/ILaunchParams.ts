@@ -24,13 +24,21 @@
 
 import * as models from './models';
 
+/**
+ * a launch-params object is returned in response to a /launch query. It holds the data needed to launch a game session by the client. Pls refer to SDK/GameLauncher for details.
+ */
 export interface ILaunchParams {
-    gameId: string;
-
-    provider: string;
-
-    regulationPopup?: boolean;
-
-    params: any;
-
+    /**
+     * platfrom intenal game-id.
+     */
+    "gameId": string;
+    /**
+     * game provider name.
+     */
+    "provider": string;
+    /**
+     * a set of parameters required to launch the game of this provider.
+     */
+    "params": any;
 }
+
