@@ -10,7 +10,7 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 host: casino.sbtech.swagger.io
-basePath: /v2
+basePath: /casinoapi/v1/
 tags:
   - name: CasAPI
     description: Client API for getting a game-set and launching a game
@@ -22,7 +22,17 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-    description: JWT( UserId, SiteId, brandName, langugae?, currency? )
+    description: a standard JWT with the following must-have parameters- SiteID, LanguageCode, BrandName, nbf, exp. For a logged-in user these fields are also required- CustomerId, Username, CurrencyCode. A brand-specific secret is used to sign the token. 
+    #
+    # JWT = HMACSHA256( 
+    #  base64UrlEncode({"alg": "HS256","typ": "JWT"}) + "." +
+    #  base64UrlEncode({"SiteID": "100", "CustomerId": "11399000", 
+    #  "Username": "qasbtech2", "CurrencyCode": "EUR", "LanguageCode": "en", 
+    #  "BrandName": "BETFLIX", "nbf": 1516954226, "exp": 1517559026, "iat": 1516954226}),
+    #  siteSecret);
+    #
+    # Sample JWT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTZXNzaW9uSUQiOiJwdnYxcGdlMmN6ZnQ1bXB4aHNqbHpicXAiLCJTaXRlSUQiOiIxMDAiLCJDdXN0b21lcklkIjoiMTEzOTkwMDAiLCJVc2VybmFtZSI6InFhc2J0ZWNoMiIsIkN1cnJlbmN5Q29kZSI6IkVVUiIsIkxhbmd1YWdlQ29kZSI6ImVuIiwiQnJhbmROYW1lIjoiQkVURkxJWCIsIm5iZiI6MTUxNjk1NDIyNiwiZXhwIjoxNTE3NTU5MDI2LCJpYXQiOjE1MTY5NTQyMjZ9.LoVQYhNybOpfTNpAUg-smsTmejHHNENlPtQFI2WBTaE
+    #
 
 paths:
 
@@ -30,7 +40,7 @@ paths:
     get:
       tags:
         - CasAPI
-      summary: Get a gameshift game-set
+      summary: Get a game-set for the requested game-shift
       operationId: getGames
       produces:
         - application/json
@@ -90,7 +100,7 @@ paths:
     get:
       tags:
         - CasAPI
-      summary: Receive games' extended information
+      summary: Get a games' extended information
       operationId: getGameExt
       produces:
         - application/json
@@ -141,29 +151,29 @@ paths:
     get:
       tags:
         - CasAPI
-      summary: Get launch-game params. This function should be called right after the player has requested to run a game. The resturned parameters include the url of the game, with all the parameters required to launch it. 
+      summary: Get launch-game params. This API should be called data required to run a game. The returned object includes the url of the game, with all the parameters required to launch it. 
       operationId: launchGameParams
       produces:
         - application/json
       parameters:
         - name: id
           in: query
-          description: Id of game
+          description: platform internal game-id as returned in a game-set.
           required: true
           type: string
         - name: gameshift
           in: query
-          description: Gameshift name
+          description: game-shift name
           required: true
           type: string
         - name: demo
           in: query
-          description: Is demo mode
+          description: request to play for-fun.
           required: false
           type: boolean
         - name: channel
           in: query
-          description: Launch platform- desktop, mobile or mini-game
+          description: gaming platform- desktop, mobile/tablet or mini-game
           required: true
           type: string
           enum:
@@ -202,13 +212,104 @@ paths:
       security:
         - Bearer: []
 
+  /games/keepalive:
+    get:
+      tags:
+        - CasAPI
+      summary: Update that a game window is alive. This API should be called periodically (default = 10sec) to update backend that the game is open and *available* for user interaction.
+      operationId: keepalive
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: query
+          description: Id of game
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '400':
+          description: Invalid request data
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '403':
+          description: Operation prohibited
+          schema:
+            type: string
+        '404':
+          description: Resource doesn't exist
+          schema:
+            type: string
+        '500':
+          description: Server error
+          schema:
+            type: string
+        'default': 
+          description: Unexpected error      
+          schema:
+            type: string
+      security:
+        - Bearer: []
 
-  /ping:
+  /games/closed:
+    get:
+      tags:
+        - CasAPI
+      summary: Update that a game window is now closed. If 2 game keepalives where missed the platform automatically assumes the game is already closed.
+      operationId: closed
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: query
+          description: Id of game
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: string
+        '400':
+          description: Invalid request data
+          schema:
+            type: string
+        '401':
+          description: Invalid token
+          schema:
+            type: string
+        '403':
+          description: Operation prohibited
+          schema:
+            type: string
+        '404':
+          description: Resource doesn't exist
+          schema:
+            type: string
+        '500':
+          description: Server error
+          schema:
+            type: string
+        'default': 
+          description: Unexpected error      
+          schema:
+            type: string
+      security:
+        - Bearer: []
+
+  /_healthcheck:
     get:
       tags:
         - CasAPI
       summary: Server heartbeat operation
-      operationId: ping
+      operationId: _healthcheck
       # description: This operation shows how to override the global security defined above, as we want to open it up for all users.
       # We want to require no security schemes and override the globally define security scheme.
       # To do that, we simply provide an empty array to the 'security' property.
@@ -225,21 +326,23 @@ definitions:
 
   IMedia:
     type: object
+    description: image, screenshot, video etc.
     required:
       - path
     properties:
       path:
         type: string
-        description: location in CDN
+        description: location in CDN. If a CDN is not given in the game-set (see below) then the path is relative to the website root.
       width:
         type: integer
-        description: width in px
+        description: width in px.
       height:
         type: integer
-        description: height in px
+        description: height in px.
   
   IGameExtra:
     type: object
+    description: additional information available for display about the game to produce  detailed game widget.
     required:
       - id
     properties:
@@ -247,31 +350,34 @@ definitions:
         type: string
       description:
         type: string
+        description: text about the game theme and main features.
       screenshots:
         type: array
+        description: game screen-shots
         items:
           $ref: '#/definitions/IMedia'
       minBet:
         type: number
+        description: minimal bet
       maxBet:
         type: number
+        description: maximal bet
       currency:
         type: string
-        description: currency display symbol        
+        description: currency display symbol 
       features:
         type: object
-        description: a key-value map
+        description: a key-value map of features of the game and the feature's value. For example= "Volatility=4"
         required:
           - default
         properties:
           default:
             type: string
-        additionalProperties:
-          type: string
 
  
   IGame:
     type: object
+    description: a game avilable for the player
     required:
       - id
       - name
@@ -279,6 +385,7 @@ definitions:
     properties:
       id:
         type: string
+        description: platfrom intenal game-id
       name:
         type: string
         description: display name
@@ -289,32 +396,34 @@ definitions:
         type: array
         items:
           type: string
-          description: tag-code | category-id
+          description: list of tags/lables/categories the game belogs to. This is used to filter games to be displayed in a game-grid widget.
       thumbnails:
         type: array
+        description: images to be displayed in a game-grid widget. The caller can decide which of the thms to use based on their size.
         items:
           $ref: '#/definitions/IMedia'
       background:
+        description: background image to be used in game-page/game-frame.
         $ref: '#/definitions/IMedia'
       studio:
         type: string
-        description: game studio name
+        description: game studio/sub-provider name
       popularity:
         type: integer
-        format: integer
+        description: measure of game popularity in the website. A higher number is more popular.
       priority:
         type: integer
-        format: integer
+        description: display order in the returned game-set.
       launchDate:
         type: string
         format: date
-        description: ISO standard date- 1985-04-12
+        description: date of game launch. ISO standard date- 1985-04-12.
       lastPlayed:
         type: string
         format: dateTime
-        description: last played date-time - RFC3339
+        description: time the player has last played the game - RFC3339.
       gameFlag:
-        description: game icon promotional overlay.
+        description: game promotional flagging. used to display an overlay on the game thumb.
         type: string
         enum:
           - new
@@ -322,20 +431,27 @@ definitions:
           - promoted
       props:
         type: object
+        description: game availablity.
         properties:
           hasDemo:
             type: boolean
+            description: game can be played for-fun.
           isMini:
             type: boolean
+            description: game can be played embedded in a small frame in a page.
           isMobile:
             type: boolean
+            description: game can be played on mobile/tablet.
           isDesktop:
             type: boolean
+            description: game can be played on a desktop browser.
       jackpotId: 
         type: string
+        description: game is contributing to a jackpot next work. The data about the jackpot *may* be available in the jackpot array in the game-set (see below).
 
   IGameSet:
     type: object
+    description: a game-set object is returned in response to a /games query. It holds a list of games and a list of jackpots.
     required:
       - gameSetId
       - gameShiftId
@@ -343,20 +459,27 @@ definitions:
     properties:
       gameSetId:
         type: string
-        description: Unique ID of the returned game-set 
+        description: unique ID of the returned game-set.
       gameShiftId:
         type: string
-        description: Unique ID of the returned game-shift 
+        description: unique ID of the game-shift containing this game-set.
       cdn:
         type: string
-        description: Root path for resources.
+        description: root path for resources. the scheme may need to be adjusted to match the page scheme.
       games:
         type: array
+        description: a list of games.
         items:
           $ref: '#/definitions/IGame'
+      jackpots:
+        type: array
+        description: a list of jackpots. only jackpots references by a game are returned.
+        items:
+          $ref: '#/definitions/IJackpot'
 
   ILaunchParams:
     type: object
+    description: a launch-params object is returned in response to a /launch query. It holds the data needed to launch a game session by the client. Pls refer to SDK/GameLauncher for details.
     required:
       - gameId
       - provider
@@ -364,7 +487,52 @@ definitions:
     properties:
       gameId:
         type: string
+        description: platfrom intenal game-id.
       provider:
         type: string
+        description: game provider name.
       params:
         type: object
+        description: a set of parameters required to launch the game of this provider.
+  
+
+  IJackpotLevel:
+    type: object
+    description: a level of a jackpot network.
+    required:
+      - value
+      - name
+    properties:
+      value:
+        type: number
+        description: current amount in jackpot-level.
+      upMinute: 
+        type: number
+        description: the amount the jackpot-level is *predicted* to increse in the next minute. This is used to display a running counter/ticker. nowValue = value + (now-timestamp) * upMinute / 60000.
+      name:
+        type: string
+        description: name can be translated using SDK dictionary.
+
+  IJackpot:
+    type: object
+    description: a jackpot network.
+    required:
+      - id
+      - currency
+      - timestamp
+      - levels
+    properties:
+      id:
+        type: string
+        description: name of jackpot. Corrsponds to the game.JackpotId.
+      currency:
+        type: string
+        description: currency 3-letter ISO code. default=EUR
+      timestamp:
+        type: integer
+        description: the time this jackpot was last updated from source. In milisec since epoch.
+      levels:
+        type: array
+        description: one or more jackpot-levels
+        items:
+          $ref: '#/definitions/IJackpotLevel'
